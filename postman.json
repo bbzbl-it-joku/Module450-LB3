@@ -1,0 +1,383 @@
+{
+    "info": {
+        "_postman_id": "c5b7c60f-e231-40a6-b05a-0f05a2badd10",
+        "name": "Person API Tests",
+        "description": "Comprehensive test suite for Person API including success, validation, and error scenarios",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+        "_exporter_id": "40811174"
+    },
+    "item": [
+        {
+            "name": "Success Scenarios",
+            "item": [
+                {
+                    "name": "Create Person",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "pm.test(\"Status code is 201\", function () {",
+                                    "    pm.response.to.have.status(201);",
+                                    "});",
+                                    "pm.test(\"Response has valid ID\", function () {",
+                                    "    var jsonData = pm.response.json();",
+                                    "    pm.expect(jsonData.id).to.exist.and.to.be.a('number');",
+                                    "});",
+                                    "pm.test(\"Response matches request data\", function () {",
+                                    "    var jsonData = pm.response.json();",
+                                    "    var requestData = JSON.parse(pm.request.body.raw);",
+                                    "    pm.expect(jsonData.name).to.equal(requestData.name);",
+                                    "    pm.expect(jsonData.email).to.equal(requestData.email);",
+                                    "    pm.expect(jsonData.age).to.equal(requestData.age);",
+                                    "});",
+                                    "if (pm.response.code === 201) {",
+                                    "    pm.environment.set(\"personId\", pm.response.json().id);",
+                                    "}"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name\": \"Test User\",\n    \"email\": \"{{$randomEmail}}\",\n    \"age\": {{$randomInt}}\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/persons",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "persons"]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Person by ID",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(\"Status code is 200\", function () {",
+                                    "    pm.response.to.have.status(200);",
+                                    "});",
+                                    "pm.test(\"Response has all required fields\", function () {",
+                                    "    var jsonData = pm.response.json();",
+                                    "    pm.expect(jsonData).to.have.all.keys('id', 'name', 'email', 'age');",
+                                    "});"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/persons/{{personId}}",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "persons", "{{personId}}"]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Update Person",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(\"Status code is 200\", function () {",
+                                    "    pm.response.to.have.status(200);",
+                                    "});",
+                                    "pm.test(\"Update is reflected in response\", function () {",
+                                    "    var jsonData = pm.response.json();",
+                                    "    var requestData = JSON.parse(pm.request.body.raw);",
+                                    "    pm.expect(jsonData.name).to.equal(requestData.name);",
+                                    "});"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name\": \"Updated Name\",\n    \"email\": \"{{$randomEmail}}\",\n    \"age\": {{$randomInt}}\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/persons/{{personId}}",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "persons", "{{personId}}"]
+                        }
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Search Operations",
+            "item": [
+                {
+                    "name": "Search by Name Contains",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(\"Status code is 200\", function () {",
+                                    "    pm.response.to.have.status(200);",
+                                    "});",
+                                    "pm.test(\"Response is an array\", function () {",
+                                    "    pm.expect(pm.response.json()).to.be.an('array');",
+                                    "});"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/persons/search/name/containing?keyword={{searchName}}",
+                            "host": ["{{baseUrl}}"],
+                            "path": [
+                                "api",
+                                "persons",
+                                "search",
+                                "name",
+                                "containing"
+                            ],
+                            "query": [
+                                {
+                                    "key": "keyword",
+                                    "value": "{{searchName}}"
+                                }
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Search by Age Range",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(\"Status code is 200\", function () {",
+                                    "    pm.response.to.have.status(200);",
+                                    "});",
+                                    "pm.test(\"Ages are within specified range\", function () {",
+                                    "    var jsonData = pm.response.json();",
+                                    "    var startAge = parseInt(pm.variables.get('startAge'));",
+                                    "    var endAge = parseInt(pm.variables.get('endAge'));",
+                                    "    jsonData.forEach(function(person) {",
+                                    "        pm.expect(person.age).to.be.within(startAge, endAge);",
+                                    "    });",
+                                    "});"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/persons/search/age/range?startAge={{startAge}}&endAge={{endAge}}",
+                            "host": ["{{baseUrl}}"],
+                            "path": [
+                                "api",
+                                "persons",
+                                "search",
+                                "age",
+                                "range"
+                            ],
+                            "query": [
+                                {
+                                    "key": "startAge",
+                                    "value": "{{startAge}}"
+                                },
+                                {
+                                    "key": "endAge",
+                                    "value": "{{endAge}}"
+                                }
+                            ]
+                        }
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Batch Operations",
+            "item": [
+                {
+                    "name": "Batch Create",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(\"Status code is 201\", function () {",
+                                    "    pm.response.to.have.status(201);",
+                                    "});",
+                                    "pm.test(\"All items created successfully\", function () {",
+                                    "    var jsonData = pm.response.json();",
+                                    "    pm.expect(jsonData).to.be.an('array');",
+                                    "    pm.expect(jsonData.length).to.equal(2);",
+                                    "    jsonData.forEach(function(item) {",
+                                    "        pm.expect(item.id).to.exist;",
+                                    "    });",
+                                    "});"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "[\n    {\n        \"name\": \"Batch User 1\",\n        \"email\": \"{{$randomEmail}}\",\n        \"age\": {{$randomInt}}\n    },\n    {\n        \"name\": \"Batch User 2\",\n        \"email\": \"{{$randomEmail}}\",\n        \"age\": {{$randomInt}}\n    }\n]"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/persons/batch",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "persons", "batch"]
+                        }
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Validation Failures",
+            "item": [
+                {
+                    "name": "Create Person - Invalid Email",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(\"Status code is 400\", function () {",
+                                    "    pm.response.to.have.status(400);",
+                                    "});"
+                                ],
+                                "type": "text/javascript",
+                                "packages": {}
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name\": \"Test User\",\n    \"email\": \"invalid-email\",\n    \"age\": 25\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/persons",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "persons"]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Create Person - Negative Age",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(\"Status code is 400\", function () {",
+                                    "    pm.response.to.have.status(400);",
+                                    "});"
+                                ],
+                                "type": "text/javascript",
+                                "packages": {}
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name\": \"Test User\",\n    \"email\": \"test@example.com\",\n    \"age\": -1\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/persons",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "persons"]
+                        }
+                    },
+                    "response": []
+                }
+            ]
+        }
+    ],
+    "event": [
+        {
+            "listen": "prerequest",
+            "script": {
+                "type": "text/javascript",
+                "exec": [
+                    "// Set default values for search parameters",
+                    "if (!pm.environment.get('startAge')) {",
+                    "    pm.environment.set('startAge', 20);",
+                    "}",
+                    "if (!pm.environment.get('endAge')) {",
+                    "    pm.environment.set('endAge', 30);",
+                    "}",
+                    "if (!pm.environment.get('searchName')) {",
+                    "    pm.environment.set('searchName', 'Test');",
+                    "}"
+                ]
+            }
+        }
+    ],
+    "variable": [
+        {
+            "key": "baseUrl",
+            "value": "http://localhost:8080",
+            "type": "string"
+        }
+    ]
+}

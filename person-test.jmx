@@ -1,0 +1,407 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jmeterTestPlan version="1.2" properties="5.0">
+    <hashTree>
+        <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="Person API Load Test">
+            <elementProp name="TestPlan.user_defined_variables" elementType="Arguments">
+                <collectionProp name="Arguments.arguments">
+                    <elementProp name="HOST" elementType="Argument">
+                        <stringProp name="Argument.name">HOST</stringProp>
+                        <stringProp name="Argument.value">localhost</stringProp>
+                    </elementProp>
+                    <elementProp name="PORT" elementType="Argument">
+                        <stringProp name="Argument.name">PORT</stringProp>
+                        <stringProp name="Argument.value">8080</stringProp>
+                    </elementProp>
+                    <elementProp name="BASE_PATH" elementType="Argument">
+                        <stringProp name="Argument.name">BASE_PATH</stringProp>
+                        <stringProp name="Argument.value">/api/persons</stringProp>
+                    </elementProp>
+                </collectionProp>
+            </elementProp>
+            <boolProp name="TestPlan.functional_mode">false</boolProp>
+        </TestPlan>
+        <hashTree>
+            <!-- Common Config Elements -->
+            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager">
+                <collectionProp name="HeaderManager.headers">
+                    <elementProp name="" elementType="Header">
+                        <stringProp name="Header.name">Content-Type</stringProp>
+                        <stringProp name="Header.value">application/json</stringProp>
+                    </elementProp>
+                    <elementProp name="" elementType="Header">
+                        <stringProp name="Header.name">Accept</stringProp>
+                        <stringProp name="Header.value">application/json</stringProp>
+                    </elementProp>
+                </collectionProp>
+            </HeaderManager>
+            <hashTree/>
+
+            <!-- User Defined Variables for Search -->
+            <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
+                <collectionProp name="Arguments.arguments">
+                    <elementProp name="startAge" elementType="Argument">
+                        <stringProp name="Argument.name">startAge</stringProp>
+                        <stringProp name="Argument.value">20</stringProp>
+                    </elementProp>
+                    <elementProp name="endAge" elementType="Argument">
+                        <stringProp name="Argument.name">endAge</stringProp>
+                        <stringProp name="Argument.value">30</stringProp>
+                    </elementProp>
+                    <elementProp name="searchName" elementType="Argument">
+                        <stringProp name="Argument.name">searchName</stringProp>
+                        <stringProp name="Argument.value">Test</stringProp>
+                    </elementProp>
+                </collectionProp>
+            </Arguments>
+            <hashTree/>
+
+            <!-- Success Scenarios -->
+            <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Success Scenarios">
+                <elementProp name="ThreadGroup.main_controller" elementType="LoopController">
+                    <boolProp name="LoopController.continue_forever">false</boolProp>
+                    <stringProp name="LoopController.loops">5</stringProp>
+                </elementProp>
+                <stringProp name="ThreadGroup.num_threads">10</stringProp>
+                <stringProp name="ThreadGroup.ramp_time">5</stringProp>
+                <boolProp name="ThreadGroup.same_user_on_next_iteration">false</boolProp>
+            </ThreadGroup>
+            <hashTree>
+                <!-- Create Person -->
+                <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Create Person">
+                    <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+                    <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+                        <collectionProp name="Arguments.arguments">
+                            <elementProp name="" elementType="HTTPArgument">
+                                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                                <stringProp name="Argument.value">{
+    "name": "Test User ${__threadNum}",
+    "email": "user${__threadNum}_${__time()}@example.com",
+    "age": ${__Random(18,80)}
+}</stringProp>
+                                <stringProp name="Argument.metadata">=</stringProp>
+                            </elementProp>
+                        </collectionProp>
+                    </elementProp>
+                    <stringProp name="HTTPSampler.domain">${HOST}</stringProp>
+                    <stringProp name="HTTPSampler.port">${PORT}</stringProp>
+                    <stringProp name="HTTPSampler.path">${BASE_PATH}</stringProp>
+                    <stringProp name="HTTPSampler.method">POST</stringProp>
+                </HTTPSamplerProxy>
+                <hashTree>
+                    <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="JSON Extractor - Person ID">
+                        <stringProp name="JSONPostProcessor.referenceNames">personId</stringProp>
+                        <stringProp name="JSONPostProcessor.jsonPathExprs">$.id</stringProp>
+                        <stringProp name="JSONPostProcessor.match_numbers"></stringProp>
+                    </JSONPostProcessor>
+                    <hashTree/>
+                    <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Code Check">
+                        <collectionProp name="Asserion.test_strings">
+                            <stringProp name="49587">201</stringProp>
+                        </collectionProp>
+                        <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+                    </ResponseAssertion>
+                    <hashTree/>
+                </hashTree>
+
+                <!-- Get Person -->
+                <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Get Person">
+                    <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+                        <collectionProp name="Arguments.arguments"/>
+                    </elementProp>
+                    <stringProp name="HTTPSampler.domain">${HOST}</stringProp>
+                    <stringProp name="HTTPSampler.port">${PORT}</stringProp>
+                    <stringProp name="HTTPSampler.path">${BASE_PATH}/${personId}</stringProp>
+                    <stringProp name="HTTPSampler.method">GET</stringProp>
+                </HTTPSamplerProxy>
+                <hashTree>
+                    <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Code Check">
+                        <collectionProp name="Asserion.test_strings">
+                            <stringProp name="49586">200</stringProp>
+                        </collectionProp>
+                        <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+                    </ResponseAssertion>
+                    <hashTree/>
+                </hashTree>
+
+                <!-- Update Person -->
+                <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Update Person">
+                    <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+                    <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+                        <collectionProp name="Arguments.arguments">
+                            <elementProp name="" elementType="HTTPArgument">
+                                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                                <stringProp name="Argument.value">{
+    "name": "Updated User ${__threadNum}",
+    "email": "updated${__threadNum}_${__time()}@example.com",
+    "age": ${__Random(18,80)}
+}</stringProp>
+                                <stringProp name="Argument.metadata">=</stringProp>
+                            </elementProp>
+                        </collectionProp>
+                    </elementProp>
+                    <stringProp name="HTTPSampler.domain">${HOST}</stringProp>
+                    <stringProp name="HTTPSampler.port">${PORT}</stringProp>
+                    <stringProp name="HTTPSampler.path">${BASE_PATH}/${personId}</stringProp>
+                    <stringProp name="HTTPSampler.method">PUT</stringProp>
+                </HTTPSamplerProxy>
+                <hashTree>
+                    <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Code Check">
+                        <collectionProp name="Asserion.test_strings">
+                            <stringProp name="49586">200</stringProp>
+                        </collectionProp>
+                        <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+                    </ResponseAssertion>
+                    <hashTree/>
+                </hashTree>
+            </hashTree>
+
+            <!-- Search Operations -->
+            <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Search Operations">
+                <elementProp name="ThreadGroup.main_controller" elementType="LoopController">
+                    <boolProp name="LoopController.continue_forever">false</boolProp>
+                    <stringProp name="LoopController.loops">3</stringProp>
+                </elementProp>
+                <stringProp name="ThreadGroup.num_threads">8</stringProp>
+                <stringProp name="ThreadGroup.ramp_time">3</stringProp>
+            </ThreadGroup>
+            <hashTree>
+                <!-- Search by Name Contains -->
+                <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Search by Name Contains">
+                    <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+                        <collectionProp name="Arguments.arguments"/>
+                    </elementProp>
+                    <stringProp name="HTTPSampler.domain">${HOST}</stringProp>
+                    <stringProp name="HTTPSampler.port">${PORT}</stringProp>
+                    <stringProp name="HTTPSampler.path">${BASE_PATH}/search/name/containing?keyword=${searchName}</stringProp>
+                    <stringProp name="HTTPSampler.method">GET</stringProp>
+                </HTTPSamplerProxy>
+                <hashTree>
+                    <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Code Check">
+                        <collectionProp name="Asserion.test_strings">
+                            <stringProp name="49586">200</stringProp>
+                        </collectionProp>
+                        <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+                    </ResponseAssertion>
+                    <hashTree/>
+                    <JSONPathAssertion guiclass="JSONPathAssertionGui" testclass="JSONPathAssertion" testname="JSON Array Check">
+                        <stringProp name="JSON_PATH">$</stringProp>
+                        <stringProp name="EXPECTED_VALUE"></stringProp>
+                        <boolProp name="JSONVALIDATION">false</boolProp>
+                        <boolProp name="EXPECT_NULL">false</boolProp>
+                        <boolProp name="INVERT">false</boolProp>
+                        <boolProp name="ISREGEX">false</boolProp>
+                    </JSONPathAssertion>
+                    <hashTree/>
+                </hashTree>
+
+                <!-- Search by Age Range -->
+                <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Search by Age Range">
+                    <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+                        <collectionProp name="Arguments.arguments"/>
+                    </elementProp>
+                    <stringProp name="HTTPSampler.domain">${HOST}</stringProp>
+                    <stringProp name="HTTPSampler.port">${PORT}</stringProp>
+                    <stringProp name="HTTPSampler.path">${BASE_PATH}/search/age/range?startAge=${startAge}&amp;endAge=${endAge}</stringProp>
+                    <stringProp name="HTTPSampler.method">GET</stringProp>
+                </HTTPSamplerProxy>
+                <hashTree>
+                    <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Code Check">
+                        <collectionProp name="Asserion.test_strings">
+                            <stringProp name="49586">200</stringProp>
+                        </collectionProp>
+                        <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+                    </ResponseAssertion>
+                    <hashTree/>
+                </hashTree>
+            </hashTree>
+
+            <!-- Validation Failures -->
+            <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Validation Failures">
+                <elementProp name="ThreadGroup.main_controller" elementType="LoopController">
+                    <boolProp name="LoopController.continue_forever">false</boolProp>
+                    <stringProp name="LoopController.loops">2</stringProp>
+                </elementProp>
+                <stringProp name="ThreadGroup.num_threads">5</stringProp>
+                <stringProp name="ThreadGroup.ramp_time">2</stringProp>
+            </ThreadGroup>
+            <hashTree>
+                <!-- Invalid Email -->
+                <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Create Person - Invalid Email">
+                    <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+                    <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+                        <collectionProp name="Arguments.arguments">
+                            <elementProp name="" elementType="HTTPArgument">
+                                <stringProp name="Argument.value">{
+    "name": "Test User",
+    "email": "invalid-email",
+    "age": 25
+}</stringProp>
+                            </elementProp>
+                        </collectionProp>
+                    </elementProp>
+                    <stringProp name="HTTPSampler.domain">${HOST}</stringProp>
+                    <stringProp name="HTTPSampler.port">${PORT}</stringProp>
+                    <stringProp name="HTTPSampler.path">${BASE_PATH}</stringProp>
+                    <stringProp name="HTTPSampler.method">POST</stringProp>
+                </HTTPSamplerProxy>
+                <hashTree>
+                    <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Code Check">
+                        <collectionProp name="Asserion.test_strings">
+                            <stringProp name="51512">400</stringProp>
+                        </collectionProp>
+                        <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+                    </ResponseAssertion>
+                    <hashTree/>
+                </hashTree>
+
+                <!-- Negative Age -->
+                <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Create Person - Negative Age">
+                    <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+                    <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+                        <collectionProp name="Arguments.arguments">
+                            <elementProp name="" elementType="HTTPArgument">
+                                <stringProp name="Argument.value">{
+    "name": "Test User",
+    "email": "test@example.com",
+    "age": -1
+}</stringProp>
+                            </elementProp>
+                        </collectionProp>
+                    </elementProp>
+                    <stringProp name="HTTPSampler.domain">${HOST}</stringProp>
+                    <stringProp name="HTTPSampler.port">${PORT}</stringProp>
+                    <stringProp name="HTTPSampler.path">${BASE_PATH}</stringProp>
+                    <stringProp name="HTTPSampler.method">POST</stringProp>
+                </HTTPSamplerProxy>
+                <hashTree>
+                    <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Code Check">
+                        <collectionProp name="Asserion.test_strings">
+                            <stringProp name="51512">400</stringProp>
+                        </collectionProp>
+                        <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+                    </ResponseAssertion>
+                    <hashTree/>
+                </hashTree>
+
+                <!-- Missing Required Fields -->
+                <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Create Person - Missing Name">
+                    <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+                    <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+                        <collectionProp name="Arguments.arguments">
+                            <elementProp name="" elementType="HTTPArgument">
+                                <stringProp name="Argument.value">{
+    "email": "test@example.com",
+    "age": 25
+}</stringProp>
+                            </elementProp>
+                        </collectionProp>
+                    </elementProp>
+                    <stringProp name="HTTPSampler.domain">${HOST}</stringProp>
+                    <stringProp name="HTTPSampler.port">${PORT}</stringProp>
+                    <stringProp name="HTTPSampler.path">${BASE_PATH}</stringProp>
+                    <stringProp name="HTTPSampler.method">POST</stringProp>
+                </HTTPSamplerProxy>
+                <hashTree>
+                    <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Code Check">
+                        <collectionProp name="Asserion.test_strings">
+                            <stringProp name="51512">400</stringProp>
+                        </collectionProp>
+                        <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+                    </ResponseAssertion>
+                    <hashTree/>
+                </hashTree>
+            </hashTree>
+
+            <!-- Batch Operations -->
+            <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Batch Operations">
+                <elementProp name="ThreadGroup.main_controller" elementType="LoopController">
+                    <boolProp name="LoopController.continue_forever">false</boolProp>
+                    <stringProp name="LoopController.loops">2</stringProp>
+                </elementProp>
+                <stringProp name="ThreadGroup.num_threads">5</stringProp>
+                <stringProp name="ThreadGroup.ramp_time">2</stringProp>
+            </ThreadGroup>
+            <hashTree>
+                <!-- Batch Create -->
+                <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Batch Create Persons">
+                    <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+                    <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+                        <collectionProp name="Arguments.arguments">
+                            <elementProp name="" elementType="HTTPArgument">
+                                <stringProp name="Argument.value">[
+    {
+        "name": "Batch User 1_${__threadNum}",
+        "email": "batch1_${__threadNum}_${__time()}@example.com",
+        "age": ${__Random(20,40)}
+    },
+    {
+        "name": "Batch User 2_${__threadNum}",
+        "email": "batch2_${__threadNum}_${__time()}@example.com",
+        "age": ${__Random(20,40)}
+    }
+]</stringProp>
+                            </elementProp>
+                        </collectionProp>
+                    </elementProp>
+                    <stringProp name="HTTPSampler.domain">${HOST}</stringProp>
+                    <stringProp name="HTTPSampler.port">${PORT}</stringProp>
+                    <stringProp name="HTTPSampler.path">${BASE_PATH}/batch</stringProp>
+                    <stringProp name="HTTPSampler.method">POST</stringProp>
+                </HTTPSamplerProxy>
+                <hashTree>
+                    <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Code Check">
+                        <collectionProp name="Asserion.test_strings">
+                            <stringProp name="49587">201</stringProp>
+                        </collectionProp>
+                        <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+                    </ResponseAssertion>
+                    <hashTree/>
+                    <JSONPathAssertion guiclass="JSONPathAssertionGui" testclass="JSONPathAssertion" testname="Check Array Response">
+                        <stringProp name="JSON_PATH">$</stringProp>
+                        <stringProp name="EXPECTED_VALUE"></stringProp>
+                        <boolProp name="JSONVALIDATION">false</boolProp>
+                        <boolProp name="EXPECT_NULL">false</boolProp>
+                    </JSONPathAssertion>
+                    <hashTree/>
+                </hashTree>
+            </hashTree>
+
+            <!-- Test Results -->
+            <ResultCollector guiclass="ViewResultsFullVisualizer" testclass="ResultCollector" testname="View Results Tree">
+                <boolProp name="ResultCollector.error_logging">false</boolProp>
+                <objProp>
+                    <name>saveConfig</name>
+                    <value class="SampleSaveConfiguration">
+                        <time>true</time>
+                        <latency>true</latency>
+                        <timestamp>true</timestamp>
+                        <success>true</success>
+                        <label>true</label>
+                        <code>true</code>
+                        <message>true</message>
+                        <threadName>true</threadName>
+                        <dataType>true</dataType>
+                        <encoding>false</encoding>
+                        <assertions>true</assertions>
+                        <subresults>true</subresults>
+                        <responseData>false</responseData>
+                        <samplerData>false</samplerData>
+                        <xml>false</xml>
+                        <fieldNames>true</fieldNames>
+                        <responseHeaders>false</responseHeaders>
+                        <requestHeaders>false</requestHeaders>
+                        <responseDataOnError>false</responseDataOnError>
+                        <saveAssertionResultsFailureMessage>true</saveAssertionResultsFailureMessage>
+                        <assertionsResultsToSave>0</assertionsResultsToSave>
+                        <bytes>true</bytes>
+                        <sentBytes>true</sentBytes>
+                        <url>true</url>
+                        <threadCounts>true</threadCounts>
+                        <connectTime>true</connectTime>
+                    </value>
+                </objProp>
+            </ResultCollector>
+            <hashTree/>
+        </hashTree>
+    </hashTree>
+</jmeterTestPlan>
