@@ -3,7 +3,7 @@ name: Spring Boot CI - Postman
 on: workflow_dispatch
 
 jobs:
-  api-test:
+  postman:
     runs-on: ubuntu-latest
     
     steps:

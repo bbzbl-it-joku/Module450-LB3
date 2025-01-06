@@ -3,7 +3,7 @@ name: Spring Boot CI - JMeter
 on: workflow_dispatch
 
 jobs:
-  performance-test:
+  jmeter:
     runs-on: ubuntu-latest
     
     steps:
