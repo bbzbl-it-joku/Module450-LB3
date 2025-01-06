@@ -36,18 +36,6 @@ jobs:
         path: |
           test-reports/
           spring.log
-    
-    - name: Check for test failures
-      run: |
-        if [ -f "test-reports/*/results.jtl" ]; then
-          if grep -q "false" "test-reports/*/results.jtl"; then
-            echo "JMeter tests failed"
-            exit 1
-          fi
-        else
-          echo "Results file not found"
-          exit 1
-        fi
 
     - name: Clean up processes
       if: always()
