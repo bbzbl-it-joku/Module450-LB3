@@ -1,0 +1,58 @@
+name: Spring Boot CI - JMeter 
+
+on: workflow_dispatch
+
+jobs:
+  performance-test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up JDK 21
+      uses: actions/setup-java@v3
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+        cache: maven
+    
+    - name: Install JMeter
+      run: |
+        wget https://downloads.apache.org/jmeter/binaries/apache-jmeter-5.6.2.tgz
+        tar -xzf apache-jmeter-5.6.2.tgz
+        echo "$(pwd)/apache-jmeter-5.6.2/bin" >> $GITHUB_PATH
+    
+    - name: Make run script executable
+      run: chmod +x ./run-jmeter.sh
+    
+    - name: Run JMeter tests
+      run: ./run-jmeter.sh
+    
+    - name: Upload JMeter test results
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: jmeter-test-results
+        path: |
+          test-reports/
+          spring.log
+    
+    - name: Check for test failures
+      run: |
+        if [ -f "test-reports/*/results.jtl" ]; then
+          if grep -q "false" "test-reports/*/results.jtl"; then
+            echo "JMeter tests failed"
+            exit 1
+          fi
+        else
+          echo "Results file not found"
+          exit 1
+        fi
+
+    - name: Clean up processes
+      if: always()
+      run: |
+        if [ -f "spring.pid" ]; then
+          kill $(cat spring.pid) || true
+          rm spring.pid
+        fi

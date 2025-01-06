@@ -79,12 +79,3 @@ echo "Results File: $REPORT_DIR/results.jtl"
 echo "JMeter Log: $REPORT_DIR/jmeter.log"
 echo "Spring Boot Log: spring.log"
 echo "----------------------------------------"
-
-# Öffne den Report im Standard-Browser (funktioniert auf den meisten Unix-Systemen)
-if command -v xdg-open > /dev/null; then
-    xdg-open "$REPORT_DIR/html/index.html" 2>&1 /dev/null
-elif command -v open > /dev/null; then
-    open "$REPORT_DIR/html/index.html" 2>&1 /dev/null
-else
-    warning "Could not open report automatically. Please open manually at: $REPORT_DIR/html/index.html"
-fi
