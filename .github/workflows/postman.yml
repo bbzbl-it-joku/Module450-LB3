@@ -19,12 +19,9 @@ jobs:
     - name: Install Newman
       run: npm install -g newman newman-reporter-htmlextra
     
-    - name: Build application
-      run: mvn clean package -DskipTests
-    
     - name: Start Spring Boot application
       run: |
-        java -jar target/*.jar > spring.log 2>&1 &
+        mvn spring-boot:run > spring.log 2>&1 &
         echo $! > spring.pid
         # Wait for application to start
         echo "Waiting for application to start..."
