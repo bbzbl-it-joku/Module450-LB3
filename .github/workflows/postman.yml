@@ -33,8 +33,12 @@ jobs:
     - name: Run Postman tests
       run: |
         newman run postman.json \
+          --iteration-count 100 \
           --reporters cli,htmlextra \
-          --reporter-htmlextra-export test-reports/postman-report.html
+          --reporter-htmlextra-export test-reports/postman-report.html \
+          --reporter-htmlextra-title "API Tests - 100 Iterations" \
+          --reporter-htmlextra-testPaging true \
+          --reporter-htmlextra-showOnlyFails false
     
     - name: Stop Spring Boot application
       if: always()

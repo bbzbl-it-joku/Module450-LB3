@@ -21,6 +21,21 @@
             <boolProp name="TestPlan.functional_mode">false</boolProp>
         </TestPlan>
         <hashTree>
+            <!-- Move timer and assertion inside a hashTree at the correct level -->
+            <DurationAssertion guiclass="DurationAssertionGui" testclass="DurationAssertion" testname="Duration Assertion">
+                <stringProp name="DurationAssertion.duration">5000</stringProp>
+            </DurationAssertion>
+            <hashTree/>
+
+            <ConstantThroughputTimer guiclass="TestBeanGUI" testclass="ConstantThroughputTimer" testname="Constant Throughput Timer">
+                <intProp name="calcMode">0</intProp>
+                <doubleProp>
+                    <name>throughput</name>
+                    <value>6000.0</value>
+                    <savedValue>0.0</savedValue>
+                </doubleProp>
+            </ConstantThroughputTimer>
+            <hashTree/>
             <!-- Common Config Elements -->
             <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager">
                 <collectionProp name="HeaderManager.headers">
@@ -59,11 +74,11 @@
             <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Success Scenarios">
                 <elementProp name="ThreadGroup.main_controller" elementType="LoopController">
                     <boolProp name="LoopController.continue_forever">false</boolProp>
-                    <stringProp name="LoopController.loops">5</stringProp>
+                    <stringProp name="LoopController.loops">250</stringProp>
                 </elementProp>
                 <stringProp name="ThreadGroup.num_threads">10</stringProp>
                 <stringProp name="ThreadGroup.ramp_time">5</stringProp>
-                <boolProp name="ThreadGroup.same_user_on_next_iteration">false</boolProp>
+                <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
             </ThreadGroup>
             <hashTree>
                 <!-- Create Person -->
@@ -159,10 +174,11 @@
             <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Search Operations">
                 <elementProp name="ThreadGroup.main_controller" elementType="LoopController">
                     <boolProp name="LoopController.continue_forever">false</boolProp>
-                    <stringProp name="LoopController.loops">3</stringProp>
+                    <stringProp name="LoopController.loops">150</stringProp>
                 </elementProp>
                 <stringProp name="ThreadGroup.num_threads">8</stringProp>
                 <stringProp name="ThreadGroup.ramp_time">3</stringProp>
+                <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
             </ThreadGroup>
             <hashTree>
                 <!-- Search by Name Contains -->
@@ -219,10 +235,11 @@
             <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Validation Failures">
                 <elementProp name="ThreadGroup.main_controller" elementType="LoopController">
                     <boolProp name="LoopController.continue_forever">false</boolProp>
-                    <stringProp name="LoopController.loops">2</stringProp>
+                    <stringProp name="LoopController.loops">100</stringProp>
                 </elementProp>
                 <stringProp name="ThreadGroup.num_threads">5</stringProp>
                 <stringProp name="ThreadGroup.ramp_time">2</stringProp>
+                <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
             </ThreadGroup>
             <hashTree>
                 <!-- Invalid Email -->
@@ -316,10 +333,11 @@
             <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Batch Operations">
                 <elementProp name="ThreadGroup.main_controller" elementType="LoopController">
                     <boolProp name="LoopController.continue_forever">false</boolProp>
-                    <stringProp name="LoopController.loops">2</stringProp>
+                    <stringProp name="LoopController.loops">100</stringProp>
                 </elementProp>
                 <stringProp name="ThreadGroup.num_threads">5</stringProp>
                 <stringProp name="ThreadGroup.ramp_time">2</stringProp>
+                <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
             </ThreadGroup>
             <hashTree>
                 <!-- Batch Create -->
@@ -366,8 +384,45 @@
                 </hashTree>
             </hashTree>
 
-            <!-- Test Results -->
+            <!-- View Results Tree -->
             <ResultCollector guiclass="ViewResultsFullVisualizer" testclass="ResultCollector" testname="View Results Tree">
+                <boolProp name="ResultCollector.error_logging">false</boolProp>
+                <objProp>
+                    <name>saveConfig</name>
+                    <value class="SampleSaveConfiguration">
+                        <time>true</time>
+                        <latency>true</latency>
+                        <timestamp>true</timestamp>
+                        <success>true</success>
+                        <label>true</label>
+                        <code>true</code>
+                        <message>true</message>
+                        <threadName>true</threadName>
+                        <dataType>true</dataType>
+                        <encoding>false</encoding>
+                        <assertions>true</assertions>
+                        <subresults>true</subresults>
+                        <responseData>false</responseData>
+                        <samplerData>false</samplerData>
+                        <xml>false</xml>
+                        <fieldNames>true</fieldNames>
+                        <responseHeaders>false</responseHeaders>
+                        <requestHeaders>false</requestHeaders>
+                        <responseDataOnError>true</responseDataOnError>
+                        <saveAssertionResultsFailureMessage>true</saveAssertionResultsFailureMessage>
+                        <assertionsResultsToSave>0</assertionsResultsToSave>
+                        <bytes>true</bytes>
+                        <sentBytes>true</sentBytes>
+                        <url>true</url>
+                        <threadCounts>true</threadCounts>
+                        <connectTime>true</connectTime>
+                    </value>
+                </objProp>
+            </ResultCollector>
+            <hashTree/>
+
+            <!-- Summary Report -->
+            <ResultCollector guiclass="SummaryReport" testclass="ResultCollector" testname="Summary Report">
                 <boolProp name="ResultCollector.error_logging">false</boolProp>
                 <objProp>
                     <name>saveConfig</name>
@@ -392,16 +447,18 @@
                         <requestHeaders>false</requestHeaders>
                         <responseDataOnError>false</responseDataOnError>
                         <saveAssertionResultsFailureMessage>true</saveAssertionResultsFailureMessage>
-                        <assertionsResultsToSave>0</assertionsResultsToSave>
                         <bytes>true</bytes>
                         <sentBytes>true</sentBytes>
                         <url>true</url>
                         <threadCounts>true</threadCounts>
+                        <idleTime>true</idleTime>
                         <connectTime>true</connectTime>
                     </value>
                 </objProp>
+                <stringProp name="filename"></stringProp>
             </ResultCollector>
             <hashTree/>
+
         </hashTree>
     </hashTree>
 </jmeterTestPlan>
