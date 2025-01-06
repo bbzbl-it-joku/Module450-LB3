@@ -1,12 +1,39 @@
 {
     "info": {
-        "_postman_id": "c5b7c60f-e231-40a6-b05a-0f05a2badd10",
+        "_postman_id": "f44c1539-b0a6-4e16-8c9b-070dcec0b8fa",
         "name": "Person API Tests",
         "description": "Comprehensive test suite for Person API including success, validation, and error scenarios",
         "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
         "_exporter_id": "40811174"
     },
     "item": [
+        {
+            "name": "Initial Setup",
+            "item": [
+                {
+                    "name": "Create Test Person",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name\": \"{{testName}}\",\n    \"email\": \"{{testEmail}}\",\n    \"age\": {{testAge}}\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/persons",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "persons"]
+                        }
+                    },
+                    "response": []
+                }
+            ]
+        },
         {
             "name": "Success Scenarios",
             "item": [
@@ -135,6 +162,45 @@
             "name": "Search Operations",
             "item": [
                 {
+                    "name": "Search by Direct Name",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(\"Status code is 200\", function () {",
+                                    "    pm.response.to.have.status(200);",
+                                    "});",
+                                    "pm.test(\"Response is an array of matching names\", function () {",
+                                    "    var jsonData = pm.response.json();",
+                                    "    pm.expect(jsonData).to.be.an('array');",
+                                    "    jsonData.forEach(function(person) {",
+                                    "        pm.expect(person.name).to.equal(pm.variables.get('searchName'));",
+                                    "    });",
+                                    "});"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/persons/search/name/{{searchName}}",
+                            "host": ["{{baseUrl}}"],
+                            "path": [
+                                "api",
+                                "persons",
+                                "search",
+                                "name",
+                                "{{searchName}}"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
                     "name": "Search by Name Contains",
                     "event": [
                         {
@@ -224,6 +290,602 @@
                         }
                     },
                     "response": []
+                },
+                {
+                    "name": "Search by Email",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(\"Status code is 200\", function () {",
+                                    "    pm.response.to.have.status(200);",
+                                    "});",
+                                    "pm.test(\"Response contains correct email\", function () {",
+                                    "    var jsonData = pm.response.json();",
+                                    "    pm.expect(jsonData.email).to.equal(pm.variables.get('searchEmail'));",
+                                    "});"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/persons/search/email/{{searchEmail}}",
+                            "host": ["{{baseUrl}}"],
+                            "path": [
+                                "api",
+                                "persons",
+                                "search",
+                                "email",
+                                "{{searchEmail}}"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Search by Email Pattern",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(\"Status code is 200\", function () {",
+                                    "    pm.response.to.have.status(200);",
+                                    "});",
+                                    "pm.test(\"Response is an array of matching emails\", function () {",
+                                    "    var jsonData = pm.response.json();",
+                                    "    var keyword = pm.variables.get('emailPattern');",
+                                    "    pm.expect(jsonData).to.be.an('array');",
+                                    "    jsonData.forEach(function(person) {",
+                                    "        pm.expect(person.email).to.include(keyword);",
+                                    "    });",
+                                    "});"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/persons/search/email/containing?keyword={{emailPattern}}",
+                            "host": ["{{baseUrl}}"],
+                            "path": [
+                                "api",
+                                "persons",
+                                "search",
+                                "email",
+                                "containing"
+                            ],
+                            "query": [
+                                {
+                                    "key": "keyword",
+                                    "value": "{{emailPattern}}"
+                                }
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Search by Name and Age",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(\"Status code is 200\", function () {",
+                                    "    pm.response.to.have.status(200);",
+                                    "});",
+                                    "pm.test(\"Response matches name and age criteria\", function () {",
+                                    "    var jsonData = pm.response.json();",
+                                    "    pm.expect(jsonData).to.be.an('array');",
+                                    "    jsonData.forEach(function(person) {",
+                                    "        pm.expect(person.name).to.equal(pm.variables.get('searchName'));",
+                                    "        pm.expect(person.age).to.equal(parseInt(pm.variables.get('searchAge')));",
+                                    "    });",
+                                    "});"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/persons/search/nameAndAge?name={{searchName}}&age={{searchAge}}",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "persons", "search", "nameAndAge"],
+                            "query": [
+                                {
+                                    "key": "name",
+                                    "value": "{{searchName}}"
+                                },
+                                {
+                                    "key": "age",
+                                    "value": "{{searchAge}}"
+                                }
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Search by Name or Email",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(\"Status code is 200\", function () {",
+                                    "    pm.response.to.have.status(200);",
+                                    "});",
+                                    "pm.test(\"Response matches either name or email\", function () {",
+                                    "    var jsonData = pm.response.json();",
+                                    "    var name = pm.variables.get('searchName');",
+                                    "    var email = pm.variables.get('searchEmail');",
+                                    "    pm.expect(jsonData).to.be.an('array');",
+                                    "    jsonData.forEach(function(person) {",
+                                    "        pm.expect(person.name === name || person.email === email).to.be.true;",
+                                    "    });",
+                                    "});"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/persons/search/nameOrEmail?name={{searchName}}&email={{searchEmail}}",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "persons", "search", "nameOrEmail"],
+                            "query": [
+                                {
+                                    "key": "name",
+                                    "value": "{{searchName}}"
+                                },
+                                {
+                                    "key": "email",
+                                    "value": "{{searchEmail}}"
+                                }
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Search by Age Ordered by Name",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(\"Status code is 200\", function () {",
+                                    "    pm.response.to.have.status(200);",
+                                    "});",
+                                    "pm.test(\"Response is ordered by name\", function () {",
+                                    "    var jsonData = pm.response.json();",
+                                    "    pm.expect(jsonData).to.be.an('array');",
+                                    "    for (var i = 1; i < jsonData.length; i++) {",
+                                    "        pm.expect(jsonData[i].name >= jsonData[i-1].name).to.be.true;",
+                                    "    }",
+                                    "});"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/persons/search/age/orderByName/{{searchAge}}",
+                            "host": ["{{baseUrl}}"],
+                            "path": [
+                                "api",
+                                "persons",
+                                "search",
+                                "age",
+                                "orderByName",
+                                "{{searchAge}}"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Search by Name Ordered by Age",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(\"Status code is 200\", function () {",
+                                    "    pm.response.to.have.status(200);",
+                                    "});",
+                                    "pm.test(\"Response is ordered by age descending\", function () {",
+                                    "    var jsonData = pm.response.json();",
+                                    "    pm.expect(jsonData).to.be.an('array');",
+                                    "    for (var i = 1; i < jsonData.length; i++) {",
+                                    "        pm.expect(jsonData[i].age <= jsonData[i-1].age).to.be.true;",
+                                    "    }",
+                                    "});"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/persons/search/name/orderByAge/{{searchName}}",
+                            "host": ["{{baseUrl}}"],
+                            "path": [
+                                "api",
+                                "persons",
+                                "search",
+                                "name",
+                                "orderByAge",
+                                "{{searchName}}"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Search People Older Than",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(\"Status code is 200\", function () {",
+                                    "    pm.response.to.have.status(200);",
+                                    "});",
+                                    "pm.test(\"All people are older than specified age\", function () {",
+                                    "    var jsonData = pm.response.json();",
+                                    "    var age = parseInt(pm.variables.get('searchAge'));",
+                                    "    pm.expect(jsonData).to.be.an('array');",
+                                    "    jsonData.forEach(function(person) {",
+                                    "        pm.expect(person.age).to.be.above(age);",
+                                    "    });",
+                                    "});"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/persons/search/age/older/{{searchAge}}",
+                            "host": ["{{baseUrl}}"],
+                            "path": [
+                                "api",
+                                "persons",
+                                "search",
+                                "age",
+                                "older",
+                                "{{searchAge}}"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Search People Younger Than",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(\"Status code is 200\", function () {",
+                                    "    pm.response.to.have.status(200);",
+                                    "});",
+                                    "pm.test(\"All people are younger than specified age\", function () {",
+                                    "    var jsonData = pm.response.json();",
+                                    "    var age = parseInt(pm.variables.get('searchAge'));",
+                                    "    pm.expect(jsonData).to.be.an('array');",
+                                    "    jsonData.forEach(function(person) {",
+                                    "        pm.expect(person.age).to.be.below(age);",
+                                    "    });",
+                                    "});"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/persons/search/age/younger/{{searchAge}}",
+                            "host": ["{{baseUrl}}"],
+                            "path": [
+                                "api",
+                                "persons",
+                                "search",
+                                "age",
+                                "younger",
+                                "{{searchAge}}"
+                            ]
+                        }
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Existence and Count Operations",
+            "item": [
+                {
+                    "name": "Check Existence by Name and Age",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(\"Status code is 200\", function () {",
+                                    "    pm.response.to.have.status(200);",
+                                    "});",
+                                    "pm.test(\"Response is boolean\", function () {",
+                                    "    pm.expect(pm.response.json()).to.be.a('boolean');",
+                                    "});",
+                                    "pm.test(\"Response structure is valid\", function () {",
+                                    "    const response = pm.response.json();",
+                                    "    pm.expect(response !== undefined).to.be.true;",
+                                    "    pm.expect(response === true || response === false).to.be.true;",
+                                    "});"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/persons/exists/nameAndAge?name={{searchName}}&age={{searchAge}}",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "persons", "exists", "nameAndAge"],
+                            "query": [
+                                {
+                                    "key": "name",
+                                    "value": "{{searchName}}"
+                                },
+                                {
+                                    "key": "age",
+                                    "value": "{{searchAge}}"
+                                }
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Count People by Age",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(\"Status code is 200\", function () {",
+                                    "    pm.response.to.have.status(200);",
+                                    "});",
+                                    "pm.test(\"Response is a non-negative number\", function () {",
+                                    "    const count = pm.response.json();",
+                                    "    pm.expect(count).to.be.a('number');",
+                                    "    pm.expect(count).to.be.at.least(0);",
+                                    "});",
+                                    "pm.test(\"Response is an integer\", function () {",
+                                    "    const count = pm.response.json();",
+                                    "    pm.expect(count % 1).to.equal(0);",
+                                    "});"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/persons/count/age/{{searchAge}}",
+                            "host": ["{{baseUrl}}"],
+                            "path": [
+                                "api",
+                                "persons",
+                                "count",
+                                "age",
+                                "{{searchAge}}"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Count People by Name Pattern",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(\"Status code is 200\", function () {",
+                                    "    pm.response.to.have.status(200);",
+                                    "});",
+                                    "pm.test(\"Response is a non-negative number\", function () {",
+                                    "    const count = pm.response.json();",
+                                    "    pm.expect(count).to.be.a('number');",
+                                    "    pm.expect(count).to.be.at.least(0);",
+                                    "});",
+                                    "pm.test(\"Response is an integer\", function () {",
+                                    "    const count = pm.response.json();",
+                                    "    pm.expect(count % 1).to.equal(0);",
+                                    "});"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/persons/count/name/containing?namePattern={{searchPattern}}",
+                            "host": ["{{baseUrl}}"],
+                            "path": [
+                                "api",
+                                "persons",
+                                "count",
+                                "name",
+                                "containing"
+                            ],
+                            "query": [
+                                {
+                                    "key": "namePattern",
+                                    "value": "{{searchPattern}}"
+                                }
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Total Count",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(\"Status code is 200\", function () {",
+                                    "    pm.response.to.have.status(200);",
+                                    "});",
+                                    "pm.test(\"Response is a non-negative number\", function () {",
+                                    "    const count = pm.response.json();",
+                                    "    pm.expect(count).to.be.a('number');",
+                                    "    pm.expect(count).to.be.at.least(0);",
+                                    "});",
+                                    "pm.test(\"Response is an integer\", function () {",
+                                    "    const count = pm.response.json();",
+                                    "    pm.expect(count % 1).to.equal(0);",
+                                    "});",
+                                    "pm.test(\"Total count is consistent\", function () {",
+                                    "    const count = pm.response.json();",
+                                    "    pm.globals.set('totalCount', count);",
+                                    "});"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/persons/count",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "persons", "count"]
+                        }
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Custom Search Operations",
+            "item": [
+                {
+                    "name": "Search by Name or Email Keyword",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(\"Status code is 200\", function () {",
+                                    "    pm.response.to.have.status(200);",
+                                    "});",
+                                    "",
+                                    "pm.test(\"Response is a properly structured array\", function () {",
+                                    "    const response = pm.response.json();",
+                                    "    pm.expect(response).to.be.an('array');",
+                                    "    ",
+                                    "    if (response.length > 0) {",
+                                    "        pm.expect(response[0]).to.have.all.keys('id', 'name', 'email', 'age');",
+                                    "    }",
+                                    "});",
+                                    "",
+                                    "pm.test(\"Search results contain keyword in name or email\", function () {",
+                                    "    const response = pm.response.json();",
+                                    "    const keyword = pm.variables.get('searchKeyword').toLowerCase();",
+                                    "    ",
+                                    "    response.forEach(function(person) {",
+                                    "        const nameMatch = person.name.toLowerCase().includes(keyword);",
+                                    "        const emailMatch = person.email.toLowerCase().includes(keyword);",
+                                    "        pm.expect(nameMatch || emailMatch).to.be.true;",
+                                    "    });",
+                                    "});",
+                                    "",
+                                    "pm.test(\"Response data types are correct\", function () {",
+                                    "    const response = pm.response.json();",
+                                    "    ",
+                                    "    if (response.length > 0) {",
+                                    "        const person = response[0];",
+                                    "        pm.expect(person.id).to.be.a('number');",
+                                    "        pm.expect(person.name).to.be.a('string');",
+                                    "        pm.expect(person.email).to.be.a('string');",
+                                    "        pm.expect(person.age).to.be.a('number');",
+                                    "    }",
+                                    "});",
+                                    "",
+                                    "pm.test(\"Empty keyword returns bad request\", function () {",
+                                    "    if (pm.variables.get('searchKeyword') === '') {",
+                                    "        pm.expect(pm.response.code).to.equal(400);",
+                                    "    }",
+                                    "});"
+                                ],
+                                "type": "text/javascript",
+                                "packages": {}
+                            }
+                        },
+                        {
+                            "listen": "prerequest",
+                            "script": {
+                                "exec": [
+                                    "pm.environment.set('searchKeyword', 'test');"
+                                ],
+                                "type": "text/javascript",
+                                "packages": {}
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/persons/search/keyword?keyword={{searchKeyword}}",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "persons", "search", "keyword"],
+                            "query": [
+                                {
+                                    "key": "keyword",
+                                    "value": "{{searchKeyword}}"
+                                }
+                            ]
+                        },
+                        "description": "Search for persons by a keyword that matches either name or email"
+                    },
+                    "response": []
                 }
             ]
         },
@@ -240,16 +902,76 @@
                                     "pm.test(\"Status code is 201\", function () {",
                                     "    pm.response.to.have.status(201);",
                                     "});",
-                                    "pm.test(\"All items created successfully\", function () {",
+                                    "",
+                                    "pm.test(\"Response structure is valid\", function () {",
                                     "    var jsonData = pm.response.json();",
                                     "    pm.expect(jsonData).to.be.an('array');",
                                     "    pm.expect(jsonData.length).to.equal(2);",
-                                    "    jsonData.forEach(function(item) {",
-                                    "        pm.expect(item.id).to.exist;",
-                                    "    });",
-                                    "});"
+                                    "});",
+                                    "",
+                                    "pm.test(\"Created items match request data\", function () {",
+                                    "    var jsonData = pm.response.json();",
+                                    "    ",
+                                    "    // Validate first batch item",
+                                    "    pm.expect(jsonData[0].name).to.equal(pm.environment.get('batchName1'));",
+                                    "    pm.expect(jsonData[0].email).to.equal(pm.environment.get('batchEmail1'));",
+                                    "    pm.expect(jsonData[0].age).to.equal(parseInt(pm.environment.get('batchAge1')));",
+                                    "    ",
+                                    "    // Validate second batch item",
+                                    "    pm.expect(jsonData[1].name).to.equal(pm.environment.get('batchName2'));",
+                                    "    pm.expect(jsonData[1].email).to.equal(pm.environment.get('batchEmail2'));",
+                                    "    pm.expect(jsonData[1].age).to.equal(parseInt(pm.environment.get('batchAge2')));",
+                                    "});",
+                                    "",
+                                    "if (pm.response.code === 201) {",
+                                    "    const response = pm.response.json();",
+                                    "    ",
+                                    "    // Store IDs for subsequent tests",
+                                    "    pm.environment.set(\"batchId1\", response[0].id);",
+                                    "    pm.environment.set(\"batchId2\", response[1].id);",
+                                    "    ",
+                                    "    // Store complete objects for deletion tests    ",
+                                    "    pm.environment.set(\"deleteId1\", response[0].id);",
+                                    "    pm.environment.set(\"deleteName1\", response[0].name);",
+                                    "    pm.environment.set(\"deleteName1\", response[0].name);",
+                                    "    pm.environment.set(\"deleteEmail1\", response[0].email);",
+                                    "    pm.environment.set(\"deleteAge1\", response[0].age);",
+                                    "    ",
+                                    "    pm.environment.set(\"deleteId2\", response[1].id);",
+                                    "    pm.environment.set(\"deleteName2\", response[1].name);",
+                                    "    pm.environment.set(\"deleteEmail2\", response[1].email);",
+                                    "    pm.environment.set(\"deleteAge2\", response[1].age);",
+                                    "}"
                                 ],
-                                "type": "text/javascript"
+                                "type": "text/javascript",
+                                "packages": {}
+                            }
+                        },
+                        {
+                            "listen": "prerequest",
+                            "script": {
+                                "exec": [
+                                    "const timestamp1 = pm.collectionVariables.get('testTimestamp') + 1;\r",
+                                    "const timestamp2 = pm.collectionVariables.get('testTimestamp') + 2;\r",
+                                    "\r",
+                                    "// Set consistent batch user names with timestamps for uniqueness\r",
+                                    "pm.environment.set('batchName1', 'Batch User ' + timestamp1);\r",
+                                    "pm.environment.set('batchName2', 'Batch User ' + timestamp2);\r",
+                                    "\r",
+                                    "// Set unique email addresses for batch users\r",
+                                    "pm.environment.set('batchEmail1', 'batchuser.' + timestamp1 + '@example.com');\r",
+                                    "pm.environment.set('batchEmail2', 'batchuser.' + timestamp2 + '@example.com');\r",
+                                    "\r",
+                                    "// Set reasonable age values for test data\r",
+                                    "pm.environment.set('batchAge1', 30);\r",
+                                    "pm.environment.set('batchAge2', 35);\r",
+                                    "\r",
+                                    "// Store batch data for validation\r",
+                                    "pm.collectionVariables.set('batchTimestamp1', timestamp1);\r",
+                                    "pm.collectionVariables.set('batchTimestamp2', timestamp2);"
+                                ],
+                                "type": "text/javascript",
+                                "packages": {}
                             }
                         }
                     ],
@@ -263,7 +985,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "[\n    {\n        \"name\": \"Batch User 1\",\n        \"email\": \"{{$randomEmail}}\",\n        \"age\": {{$randomInt}}\n    },\n    {\n        \"name\": \"Batch User 2\",\n        \"email\": \"{{$randomEmail}}\",\n        \"age\": {{$randomInt}}\n    }\n]"
+                            "raw": "[\n    {\n        \"name\": \"{{batchName1}}\",\n        \"email\": \"{{batchEmail1}}\",\n        \"age\": {{batchAge1}}\n    },\n    {\n        \"name\": \"{{batchName2}}\",\n        \"email\": \"{{batchEmail2}}\",\n        \"age\": {{batchAge2}}\n    }\n]"
                         },
                         "url": {
                             "raw": "{{baseUrl}}/api/persons/batch",
@@ -351,6 +1073,197 @@
                     "response": []
                 }
             ]
+        },
+        {
+            "name": "Delete Operations",
+            "item": [
+                {
+                    "name": "Delete by Email",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(\"Status code is 200 for successful deletion\", function () {",
+                                    "    pm.response.to.have.status(200);",
+                                    "});",
+                                    "",
+                                    "if (pm.response.code === 200) {",
+                                    "    setTimeout(function() {",
+                                    "        pm.sendRequest({",
+                                    "            url: pm.variables.get('baseUrl') + '/api/persons/search/email/' + pm.variables.get('deleteEmail'),",
+                                    "            method: 'GET'",
+                                    "        }, function (err, res) {",
+                                    "            pm.test(\"Deleted person is no longer retrievable\", function () {",
+                                    "                pm.expect(res.code).to.equal(404);",
+                                    "            });",
+                                    "        });",
+                                    "    }, 100);",
+                                    "}"
+                                ],
+                                "type": "text/javascript",
+                                "packages": {}
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "DELETE",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/persons/email/{{deleteEmail}}",
+                            "host": ["{{baseUrl}}"],
+                            "path": [
+                                "api",
+                                "persons",
+                                "email",
+                                "{{deleteEmail}}"
+                            ]
+                        },
+                        "description": "Delete a person by their email address"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Delete by Name and Age",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(\"Status code is 200 for successful deletion\", function () {",
+                                    "    pm.response.to.have.status(200);",
+                                    "});",
+                                    "",
+                                    "if (pm.response.code === 200) {",
+                                    "    setTimeout(function() {",
+                                    "        const checkUrl = `${pm.variables.get('baseUrl')}/api/persons/exists/nameAndAge?name=${pm.variables.get('deleteName')}&age=${pm.variables.get('deleteAge')}`;",
+                                    "        pm.sendRequest(checkUrl, function (err, res) {",
+                                    "            pm.test(\"Verify person no longer exists\", function () {",
+                                    "                pm.expect(res.json()).to.be.false;",
+                                    "            });",
+                                    "        });",
+                                    "    }, 100);",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "DELETE",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/persons/nameAndAge?name={{deleteName}}&age={{deleteAge}}",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "persons", "nameAndAge"],
+                            "query": [
+                                {
+                                    "key": "name",
+                                    "value": "{{deleteName}}"
+                                },
+                                {
+                                    "key": "age",
+                                    "value": "{{deleteAge}}"
+                                }
+                            ]
+                        },
+                        "description": "Delete persons by name and age combination"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Batch Delete",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(\"Status code is 200 for successful batch deletion\", function () {",
+                                    "    pm.response.to.have.status(200);",
+                                    "});",
+                                    "",
+                                    "const requestData = JSON.parse(pm.request.body.raw);",
+                                    "",
+                                    "if (pm.response.code === 200 && Array.isArray(requestData)) {",
+                                    "    requestData.forEach(function(person) {",
+                                    "        setTimeout(function() {",
+                                    "            const checkUrl = `${pm.variables.get('baseUrl')}/api/persons/${person.id}`;",
+                                    "            pm.sendRequest(checkUrl, function (err, res) {",
+                                    "                pm.test(`Verify person ${person.id} was deleted`, function () {",
+                                    "                    pm.expect(res.code).to.equal(404);",
+                                    "                });",
+                                    "            });",
+                                    "        }, 100);",
+                                    "    });",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "[\n    {\n        \"id\": {{deleteId1}},\n        \"name\": \"{{deleteName1}}\",\n        \"email\": \"{{deleteEmail1}}\",\n        \"age\": {{deleteAge1}}\n    },\n    {\n        \"id\": {{deleteId2}},\n        \"name\": \"{{deleteName2}}\",\n        \"email\": \"{{deleteEmail2}}\",\n        \"age\": {{deleteAge2}}\n    }\n]"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/persons/batch",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "persons", "batch"]
+                        },
+                        "description": "Delete multiple persons in a single request"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Delete All Persons",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test(\"Status code is 200 for successful deletion\", function () {",
+                                    "    pm.response.to.have.status(200);",
+                                    "});",
+                                    "",
+                                    "if (pm.response.code === 200) {",
+                                    "    setTimeout(function() {",
+                                    "        pm.sendRequest({",
+                                    "            url: pm.variables.get('baseUrl') + '/api/persons/count',",
+                                    "            method: 'GET'",
+                                    "        }, function (err, res) {",
+                                    "            pm.test(\"Verify all persons were deleted\", function () {",
+                                    "                pm.expect(res.json()).to.equal(0);",
+                                    "            });",
+                                    "        });",
+                                    "    }, 100);",
+                                    "}"
+                                ],
+                                "type": "text/javascript",
+                                "packages": {}
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "DELETE",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/persons/all",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "persons", "all"]
+                        },
+                        "description": "Delete all persons from the database"
+                    },
+                    "response": []
+                }
+            ]
         }
     ],
     "event": [
@@ -359,16 +1272,33 @@
             "script": {
                 "type": "text/javascript",
                 "exec": [
-                    "// Set default values for search parameters",
-                    "if (!pm.environment.get('startAge')) {",
-                    "    pm.environment.set('startAge', 20);",
+                    "// Generate or retrieve timestamp for consistent test data",
+                    "if (!pm.collectionVariables.get('testTimestamp')) {",
+                    "    pm.collectionVariables.set('testTimestamp', Date.now());",
                     "}",
-                    "if (!pm.environment.get('endAge')) {",
-                    "    pm.environment.set('endAge', 30);",
-                    "}",
-                    "if (!pm.environment.get('searchName')) {",
-                    "    pm.environment.set('searchName', 'Test');",
-                    "}"
+                    "",
+                    "const timestamp = pm.collectionVariables.get('testTimestamp');",
+                    "",
+                    "// Set consistent test data using the stored timestamp",
+                    "pm.environment.set('testName', 'Test User ' + timestamp);",
+                    "pm.environment.set('testEmail', 'testuser.' + timestamp + '@example.com');",
+                    "pm.environment.set('testAge', 25);",
+                    "",
+                    "// Set search parameters based on consistent test data",
+                    "pm.environment.set('searchName', pm.environment.get('testName'));",
+                    "pm.environment.set('searchEmail', pm.environment.get('testEmail'));",
+                    "pm.environment.set('searchAge', pm.environment.get('testAge'));",
+                    "",
+                    "// Set additional search parameters",
+                    "pm.environment.set('startAge', pm.environment.get('testAge') - 5);",
+                    "pm.environment.set('endAge', pm.environment.get('testAge') + 5);",
+                    "pm.environment.set('searchPattern', 'Test User');",
+                    "pm.environment.set('emailPattern', '@example.com');",
+                    "",
+                    "// Set delete operation parameters",
+                    "pm.environment.set('deleteEmail', pm.environment.get('testEmail'));",
+                    "pm.environment.set('deleteName', pm.environment.get('testName'));",
+                    "pm.environment.set('deleteAge', pm.environment.get('testAge'));"
                 ]
             }
         }
@@ -378,6 +1308,18 @@
             "key": "baseUrl",
             "value": "http://localhost:8080",
             "type": "string"
+        },
+        {
+            "key": "testTimestamp",
+            "value": ""
+        },
+        {
+            "key": "batchTimestamp1",
+            "value": ""
+        },
+        {
+            "key": "batchTimestamp2",
+            "value": ""
         }
     ]
 }
