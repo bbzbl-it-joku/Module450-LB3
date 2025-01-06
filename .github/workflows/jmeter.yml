@@ -34,13 +34,12 @@ jobs:
       with:
         name: jmeter-test-results
         path: |
-          test-reports/
-          spring.log
+          reports/jmeter/
 
     - name: Clean up processes
       if: always()
       run: |
-        if [ -f "spring.pid" ]; then
-          kill $(cat spring.pid) || true
-          rm spring.pid
+        if [ -f "reports/jmeter/spring.pid" ]; then
+          kill $(cat reports/jmeter/spring.pid) || true
+          rm reports/jmeter/spring.pid
         fi

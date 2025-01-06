@@ -1,5 +1,7 @@
 #!/bin/bash
 
+JMETER_DIR="reports/jmeter"
+
 # Farben für Output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -22,24 +24,31 @@ warning() {
 # Cleanup Funktion
 cleanup() {
     log "Cleaning up..."
-    if [ -f "spring.pid" ]; then
+    if [ -f "$JMETER_DIR/spring.pid" ]; then
         log "Stopping Spring Boot application..."
-        kill $(cat spring.pid)
-        rm spring.pid
+        kill $(cat $JMETER_DIR/spring.pid)
+        rm $JMETER_DIR/spring.pid
     fi
     exit 0
 }
+
+# Check for clean command
+if [ "$1" = "clean" ]; then
+    log "Cleaning up reports directory..."
+    rm -rf $JMETER_DIR
+    exit 0
+fi
 
 # Trap für Ctrl+C
 trap cleanup SIGINT SIGTERM
 
 # Verzeichnisse erstellen
-REPORT_DIR="test-reports/$(date +'%Y-%m-%d_%H-%M-%S')"
+REPORT_DIR="$JMETER_DIR/$(date +'%Y-%m-%d_%H-%M-%S')"
 mkdir -p $REPORT_DIR
 
 # Spring Boot starten
 log "Starting Spring Boot application..."
-mvn spring-boot:run > spring.log 2>&1 & echo $! > spring.pid
+mvn spring-boot:run > $REPORT_DIR/spring.log 2>&1 & echo $! > $JMETER_DIR/spring.pid
 
 # Warten bis Spring Boot gestartet ist
 log "Waiting for Spring Boot to start..."
@@ -67,8 +76,8 @@ log "Test report is available at: $REPORT_DIR/html/index.html"
 
 # Spring Boot stoppen
 log "Stopping Spring Boot application..."
-kill $(cat spring.pid)
-rm spring.pid
+kill $(cat $JMETER_DIR/spring.pid)
+rm $JMETER_DIR/spring.pid
 
 # Zusammenfassung anzeigen
 echo ""
@@ -77,5 +86,5 @@ echo "----------------------------------------"
 echo "Report Location: $REPORT_DIR/html/index.html"
 echo "Results File: $REPORT_DIR/results.jtl"
 echo "JMeter Log: $REPORT_DIR/jmeter.log"
-echo "Spring Boot Log: spring.log"
+echo "Spring Boot Log: $REPORT_DIR/spring.log"
 echo "----------------------------------------"

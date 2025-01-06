@@ -19,34 +19,11 @@ jobs:
     - name: Install Newman
       run: npm install -g newman newman-reporter-htmlextra
     
-    - name: Start Spring Boot application
-      run: |
-        mvn spring-boot:run > spring.log 2>&1 &
-        echo $! > spring.pid
-        # Wait for application to start
-        echo "Waiting for application to start..."
-        while ! nc -z localhost 8080; do
-          sleep 1
-        done
-        echo "Application started"
+    - name: Make run script executable
+      run: chmod +x ./run-newman.sh
     
-    - name: Run Postman tests
-      run: |
-        newman run postman.json \
-          --iteration-count 100 \
-          --reporters cli,htmlextra \
-          --reporter-htmlextra-export test-reports/postman-report.html \
-          --reporter-htmlextra-title "API Tests - 100 Iterations" \
-          --reporter-htmlextra-testPaging true \
-          --reporter-htmlextra-showOnlyFails false
-    
-    - name: Stop Spring Boot application
-      if: always()
-      run: |
-        if [ -f "spring.pid" ]; then
-          kill $(cat spring.pid)
-          rm spring.pid
-        fi
+    - name: Run Newman tests
+      run: ./run-newman.sh
     
     - name: Upload test results
       if: always()
@@ -54,13 +31,12 @@ jobs:
       with:
         name: postman-test-results
         path: |
-          test-reports/
-          spring.log
+          reports/newman/
     
-    - name: Check for test failures
+    - name: Clean up processes
+      if: always()
       run: |
-        if [ ! -f "test-reports/postman-report.html" ]; then
-          echo "Test report not found"
-          exit 1
+        if [ -f "reports/newman/spring.pid" ]; then
+          kill $(cat reports/newman/spring.pid) || true
+          rm reports/newman/spring.pid
         fi
-        # Newman exits with non-zero code on test failure, so we don't need additional checks

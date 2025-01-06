@@ -21,21 +21,6 @@
             <boolProp name="TestPlan.functional_mode">false</boolProp>
         </TestPlan>
         <hashTree>
-            <!-- Move timer and assertion inside a hashTree at the correct level -->
-            <DurationAssertion guiclass="DurationAssertionGui" testclass="DurationAssertion" testname="Duration Assertion">
-                <stringProp name="DurationAssertion.duration">5000</stringProp>
-            </DurationAssertion>
-            <hashTree/>
-
-            <ConstantThroughputTimer guiclass="TestBeanGUI" testclass="ConstantThroughputTimer" testname="Constant Throughput Timer">
-                <intProp name="calcMode">0</intProp>
-                <doubleProp>
-                    <name>throughput</name>
-                    <value>6000.0</value>
-                    <savedValue>0.0</savedValue>
-                </doubleProp>
-            </ConstantThroughputTimer>
-            <hashTree/>
             <!-- Common Config Elements -->
             <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager">
                 <collectionProp name="HeaderManager.headers">
@@ -74,9 +59,9 @@
             <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Success Scenarios">
                 <elementProp name="ThreadGroup.main_controller" elementType="LoopController">
                     <boolProp name="LoopController.continue_forever">false</boolProp>
-                    <stringProp name="LoopController.loops">250</stringProp>
+                    <stringProp name="LoopController.loops">500</stringProp>
                 </elementProp>
-                <stringProp name="ThreadGroup.num_threads">10</stringProp>
+                <stringProp name="ThreadGroup.num_threads">8</stringProp>
                 <stringProp name="ThreadGroup.ramp_time">5</stringProp>
                 <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
             </ThreadGroup>
@@ -174,10 +159,10 @@
             <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Search Operations">
                 <elementProp name="ThreadGroup.main_controller" elementType="LoopController">
                     <boolProp name="LoopController.continue_forever">false</boolProp>
-                    <stringProp name="LoopController.loops">150</stringProp>
+                    <stringProp name="LoopController.loops">500</stringProp>
                 </elementProp>
                 <stringProp name="ThreadGroup.num_threads">8</stringProp>
-                <stringProp name="ThreadGroup.ramp_time">3</stringProp>
+                <stringProp name="ThreadGroup.ramp_time">5</stringProp>
                 <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
             </ThreadGroup>
             <hashTree>
@@ -235,10 +220,10 @@
             <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Validation Failures">
                 <elementProp name="ThreadGroup.main_controller" elementType="LoopController">
                     <boolProp name="LoopController.continue_forever">false</boolProp>
-                    <stringProp name="LoopController.loops">100</stringProp>
+                    <stringProp name="LoopController.loops">500</stringProp>
                 </elementProp>
-                <stringProp name="ThreadGroup.num_threads">5</stringProp>
-                <stringProp name="ThreadGroup.ramp_time">2</stringProp>
+                <stringProp name="ThreadGroup.num_threads">8</stringProp>
+                <stringProp name="ThreadGroup.ramp_time">5</stringProp>
                 <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
             </ThreadGroup>
             <hashTree>
@@ -333,10 +318,10 @@
             <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Batch Operations">
                 <elementProp name="ThreadGroup.main_controller" elementType="LoopController">
                     <boolProp name="LoopController.continue_forever">false</boolProp>
-                    <stringProp name="LoopController.loops">100</stringProp>
+                    <stringProp name="LoopController.loops">500</stringProp>
                 </elementProp>
-                <stringProp name="ThreadGroup.num_threads">5</stringProp>
-                <stringProp name="ThreadGroup.ramp_time">2</stringProp>
+                <stringProp name="ThreadGroup.num_threads">8</stringProp>
+                <stringProp name="ThreadGroup.ramp_time">5</stringProp>
                 <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
             </ThreadGroup>
             <hashTree>
