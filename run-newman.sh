@@ -50,16 +50,16 @@ trap cleanup SIGINT SIGTERM
 
 # Create directories
 REPORT_DIR="$NEWMAN_DIR/$(date +'%Y-%m-%d_%H-%M-%S')"
-mkdir -p "$REPORT_DIR/html"  # Explicitly create html directory
+mkdir -p "$REPORT_DIR/html" # Explicitly create html directory
 
 # Start Spring Boot
 log "Starting Spring Boot application..."
-mvn spring-boot:run > $NEWMAN_DIR/spring.log 2>&1 & echo $! > $NEWMAN_DIR/spring.pid
+mvn spring-boot:run >$NEWMAN_DIR/spring.log 2>&1 &
+echo $! >$NEWMAN_DIR/spring.pid
 
 # Wait for Spring Boot to start
 log "Waiting for Spring Boot to start..."
-while ! curl -s http://localhost:8080/api/persons > /dev/null
-do
+while ! curl -s http://localhost:8080/api/persons >/dev/null; do
     sleep 1
 done
 log "Spring Boot is running!"
@@ -73,7 +73,6 @@ newman run collection.json \
     --reporter-htmlextra-testPaging true \
     --reporter-htmlextra-showOnlyFails false \
     --reporter-htmlextra-logs true \
-
     --iteration-count ${1:-1} \
     --bail # Stop on first error
 
